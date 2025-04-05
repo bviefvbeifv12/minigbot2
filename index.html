@@ -1,76 +1,665 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <title>ملخص المشروع - بوت تعدين العملات الرقمية</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Mining Power</title>
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <!-- TailwindCSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
+    /* Global Styles */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
       margin: 0;
-      padding: 20px;
-      line-height: 1.6;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      color: #fff;
+      background-color: #0b0c3a;
     }
-    h1 {
-      text-align: center;
-      color: #333;
+    .content-wrapper {
+      position: relative;
+      z-index: 1;
     }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
+    /* Neon Text Effects */
+    .neon-text {
+      color: #fff;
+      text-shadow: 0 0 3px #ff00ff, 0 0 6px #ff00ff;
+    }
+    .neon-green {
+      color: #00ff00;
+      text-shadow: 0 0 3px #00ff00, 0 0 6px #00ff00;
+    }
+    .neon-button {
+      background: linear-gradient(45deg, #ff00ff, #ff9900);
+      color: #000;
+      font-weight: bold;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 10px #ff00ff;
+      white-space: nowrap;
+      font-size: 0.875rem;
+    }
+    .neon-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ff00ff;
+    }
+    .neon-icon img {
+      transition: transform 0.3s ease, filter 0.3s ease;
+      filter: drop-shadow(0 0 8px #ff00ff);
+    }
+    .neon-icon:hover img {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 16px #ff00ff);
+    }
+    /* Modal Styles */
+    .modal {
+      background: rgba(13, 13, 13, 0.95);
+      border: 2px solid #ff00ff;
+      box-shadow: 0 0 20px #ff00ff;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h2 {
-      color: #555;
+    #loginModal {
+      background-color: rgba(0, 0, 0, 0.8);
     }
-    ul, ol {
-      margin: 10px 0 10px 20px;
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
     }
-    p {
-      margin: 10px 0;
+    /* Fade-in Animation */
+    .animate-fadeIn {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>ملخص المشروع</h1>
-    <p>
-      هذا المشروع هو بوت ويب لمحاكاة تعدين العملات الرقمية، يُقدم تجربة تفاعلية فريدة دون الحاجة لاستخدام قاعدة بيانات خارجية. الهدف هو تقديم تجربة حية تُحدث تحديثات لحظية للأرباح وسعر العملة، مع نظام إشعارات وترقيات يشجع المستخدم على التفاعل المستمر.
-    </p>
+<body class="text-gray-100">
+  <!-- Responsive Navigation Bar -->
+  <nav class="fixed top-0 left-0 w-full bg-transparent z-50 p-4">
+    <div class="flex flex-wrap items-center justify-between">
+      <!-- Left Group: Deposit, Withdraw, Wallet -->
+      <div class="flex flex-wrap space-x-2 mb-2 md:mb-0">
+        <button class="neon-button" onclick="toggleModal('depositModal')">Deposit</button>
+        <button class="neon-button" onclick="toggleModal('withdrawModal')">Withdraw</button>
+        <button class="neon-button" onclick="toggleModal('walletModal'); updateWalletDisplay()">My Wallet</button>
+      </div>
+      <!-- Right Group: Login, Language -->
+      <div class="flex flex-wrap space-x-2">
+        <button class="neon-button" onclick="toggleModal('loginModal')">Login</button>
+        <select id="languageSelect" class="neon-button bg-transparent border border-gray-400 rounded" onchange="changeLanguage(this.value)">
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+    </div>
+  </nav>
 
-    <h2>المميزات الأساسية</h2>
-    <ul>
-      <li>تحديث الأرباح في الوقت الحقيقي باستخدام WebSocket أو API خارجي (مثال: Binance).</li>
-      <li>إدارة الحساب والملف الشخصي عبر نظام تسجيل مستقل (مثلاً باستخدام OAuth).</li>
-      <li>نظام إحالات وترقيات لزيادة سرعة التعدين أو الحصول على مكافآت إضافية.</li>
-      <li>واجهة مستخدم جذابة ومتجاوبة باستخدام تقنيات حديثة مثل React أو Vue.</li>
-      <li>استخدام التخزين المحلي (LocalStorage) لإدارة البيانات مؤقتاً دون الحاجة لقاعدة بيانات.</li>
-      <li>نظام إشعارات فوري ونظام FOMO لتحفيز المستخدمين.</li>
-    </ul>
-
-    <h2>التقنيات والمنصة المقترحة</h2>
-    <p>
-      <strong>الواجهة الأمامية:</strong> استخدام مكتبات مثل React.js أو Vue.js مع Tailwind CSS أو Material UI لبناء واجهة تفاعلية ومتجاوبة.<br>
-      <strong>الواجهة الخلفية:</strong> إنشاء RESTful API باستخدام Node.js مع Express وتوفير خدمة WebSocket لتحديث البيانات بشكل لحظي.<br>
-      <strong>التخزين:</strong> الاعتماد على LocalStorage أو حلول إدارة الحالة في الواجهة الأمامية (مثل Redux أو Context API) لتخزين البيانات مؤقتاً.
-    </p>
-
-    <h2>خطوات التنفيذ</h2>
-    <ol>
-      <li>تصميم تجربة المستخدم (UX/UI) ورسم المخططات الأولية للواجهة.</li>
-      <li>تطوير الواجهة الأمامية باستخدام React أو Vue مع تصميم جذاب ومتجاوب.</li>
-      <li>إنشاء الواجهة الخلفية باستخدام Node.js مع Express، وإعداد خادم WebSocket.</li>
-      <li>التكامل مع API خارجي لجلب أسعار العملات وتحديث الأرباح بشكل لحظي.</li>
-      <li>اختبار التطبيق على منصات متعددة والنشر على خدمات سحابية مثل Vercel أو Heroku.</li>
-    </ol>
-
-    <p>
-      بهذا يكون المشروع بوت تعدين تفاعلي وحديث يقدم تجربة شاملة للمستخدم دون الحاجة لقاعدة بيانات، مع واجهة جذابة ونظام إشعارات وترقيات يُحاكي بيئة تعدين حقيقية.
-    </p>
+  <!-- Main Content Wrapper -->
+  <div class="content-wrapper pt-20 max-w-screen-xl mx-auto px-4">
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+      <div class="modal p-6 rounded-lg w-full max-w-md relative animate-fadeIn">
+        <span class="close-btn" onclick="toggleModal('walletModal')">&times;</span>
+        <h2 class="text-xl font-bold text-center neon-text" data-translate="walletModalTitle">My Wallet</h2>
+        <div class="bg-gray-800 p-4 rounded-lg shadow-lg mt-4">
+          <p class="text-center text-lg" data-translate="walletBalance">Wallet Balance:</p>
+          <p id="walletBalanceDisplay" class="text-center text-2xl font-bold neon-green mt-2">$0.00</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+      <div class="modal p-6 rounded-lg w-full max-w-md relative animate-fadeIn">
+        <span class="close-btn" onclick="toggleModal('registerModal')">&times;</span>
+        <h2 class="text-xl font-bold text-center neon-text" data-translate="signUp">Sign Up</h2>
+        <input type="email" id="email" placeholder="Email" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white">
+        <input type="password" id="password" placeholder="Password" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white">
+        <button class="w-full neon-button" onclick="register()" data-translate="signUp">Sign Up</button>
+      </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+      <div class="bg-white rounded-xl p-6 w-full max-w-md text-center animate-fadeIn">
+        <h2 class="text-xl font-bold mb-4 neon-text" data-translate="login">Login</h2>
+        <input type="text" id="username" placeholder="Username" class="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none">
+        <input type="text" id="code" placeholder="6-digit Code" class="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none">
+        <button onclick="login()" class="w-full neon-button" data-translate="login">Login</button>
+      </div>
+    </div>
+    
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+      <div class="modal p-6 rounded-lg w-full max-w-md relative animate-fadeIn">
+        <span class="close-btn" onclick="toggleModal('depositModal')">&times;</span>
+        <h2 class="text-xl font-bold text-center neon-text" data-translate="depositModalTitle">Deposit (USDT)</h2>
+        <div class="flex items-center justify-center mb-3">
+          <p id="depositAddress" class="bg-gray-800 p-2 rounded text-green-500 font-mono">
+            TCHQLaJMtYuQ9NpfE5NvDmWUgnjqQH1xNH
+          </p>
+          <button onclick="copyAddress()" class="ml-2 text-sm text-white underline" data-translate="depositCopy">Copy</button>
+        </div>
+        <input type="text" placeholder="Enter your wallet address" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white" data-translate-placeholder="depositPlaceholderAddress">
+        <input type="number" placeholder="Enter amount" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white" data-translate-placeholder="depositPlaceholderAmount">
+        <input type="text" placeholder="Enter transaction ID" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white" data-translate-placeholder="depositPlaceholderTxid">
+        <button class="w-full neon-button" onclick="alert('Deposit Successful');" data-translate="depositButton">Deposit</button>
+      </div>
+    </div>
+    
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+      <div class="modal p-6 rounded-lg w-full max-w-md relative animate-fadeIn">
+        <span class="close-btn" onclick="toggleModal('withdrawModal')">&times;</span>
+        <h2 class="text-xl font-bold text-center neon-text" data-translate="withdrawModalTitle">Withdraw</h2>
+        <input type="text" placeholder="Enter your withdrawal wallet address" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white" data-translate-placeholder="withdrawPlaceholderAddress">
+        <input type="number" placeholder="Enter amount" class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white" data-translate-placeholder="withdrawPlaceholderAmount">
+        <select class="w-full p-2 mb-3 rounded border border-gray-400 bg-gray-700 text-white">
+          <option>Bitcoin (BTC)</option>
+          <option>Ripple (XRP)</option>
+          <option>Solana (SOL)</option>
+          <option>Ethereum (ETH)</option>
+        </select>
+        <button class="w-full neon-button" onclick="alert('Withdrawal Successful');" data-translate="withdrawButton">Withdraw</button>
+      </div>
+    </div>
+    
+    <!-- Coin Detail Modal -->
+    <div id="coinDetailModal" class="fixed inset-0 flex items-center justify-center hidden z-50">
+      <div class="modal p-6 rounded-lg w-full max-w-md relative animate-fadeIn">
+        <span class="close-btn" onclick="hideCoinDetail()">&times;</span>
+        <div id="coinDetailContent" class="text-center"></div>
+      </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <header class="flex flex-col md:flex-row items-center justify-between pt-24 mb-10">
+      <div class="md:w-1/2 space-y-6">
+        <h1 class="text-3xl md:text-5xl font-bold neon-text" data-translate="heroTitle">Cloud Mining Power</h1>
+        <p class="text-lg md:text-xl neon-text" data-translate="heroText">
+          Discover the power of cloud mining — smart, effortless, and fast. Activate the mining bot and start earning cryptocurrencies like Bitcoin, Solana, and XRP within seconds — no hardware, no electricity, no technical skills needed. Automated profits • High-level security • Lightning-fast performance.
+        </p>
+      </div>
+      <div class="md:w-1/2 flex justify-center md:justify-end mt-6 md:mt-0">
+        <!-- Optional image or element -->
+      </div>
+    </header>
+    
+    <!-- Coin Icons Section -->
+    <section class="flex flex-wrap justify-center gap-6 mb-12">
+      <div class="coin-icon neon-icon cursor-pointer w-16 h-16" onclick="showCoinDetail('BTC')">
+        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=013" alt="Bitcoin" class="w-full h-full object-contain">
+      </div>
+      <div class="coin-icon neon-icon cursor-pointer w-16 h-16" onclick="showCoinDetail('ETH')">
+        <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png?v=013" alt="Ethereum" class="w-full h-full object-contain">
+      </div>
+      <div class="coin-icon neon-icon cursor-pointer w-16 h-16" onclick="showCoinDetail('SOL')">
+        <img src="https://cryptologos.cc/logos/solana-sol-logo.png?v=013" alt="Solana" class="w-full h-full object-contain">
+      </div>
+      <div class="coin-icon neon-icon cursor-pointer w-16 h-16" onclick="showCoinDetail('XRP')">
+        <img src="https://cryptologos.cc/logos/xrp-xrp-logo.png?v=013" alt="XRP" class="w-full h-full object-contain">
+      </div>
+    </section>
+    
+    <!-- Mining Dashboard Section -->
+    <section id="miningDashboard" class="p-4">
+      <h2 class="text-2xl font-bold neon-text text-center mb-4" data-translate="miningDashboardTitle">Mining Dashboard</h2>
+      <div id="miningSessionsContainer" class="space-y-4">
+        <p class="text-center" data-translate="noActiveMiningSessions">No active mining sessions</p>
+      </div>
+    </section>
   </div>
+  
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.min.js"></script>
+  <script>
+    // Translation dictionary
+    const translations = {
+      en: {
+        signUp: "Sign Up",
+        login: "Login",
+        depositModalTitle: "Deposit (USDT)",
+        depositCopy: "Copy",
+        depositPlaceholderAddress: "Enter your wallet address",
+        depositPlaceholderAmount: "Enter amount",
+        depositPlaceholderTxid: "Enter transaction ID",
+        depositButton: "Deposit",
+        withdrawModalTitle: "Withdraw",
+        withdrawPlaceholderAddress: "Enter your withdrawal wallet address",
+        withdrawPlaceholderAmount: "Enter amount",
+        withdrawButton: "Withdraw",
+        walletModalTitle: "My Wallet",
+        walletBalance: "Wallet Balance:",
+        heroTitle: "Cloud Mining Power",
+        heroText: "Discover the power of cloud mining — smart, effortless, and fast. Activate the mining bot and start earning cryptocurrencies like Bitcoin, Solana, and XRP within seconds — no hardware, no electricity, no technical skills needed. Automated profits • High-level security • Lightning-fast performance.",
+        miningDashboardTitle: "Mining Dashboard",
+        noActiveMiningSessions: "No active mining sessions"
+      },
+      ar: {
+        signUp: "تسجيل",
+        login: "تسجيل الدخول",
+        depositModalTitle: "إيداع (USDT)",
+        depositCopy: "انسخ",
+        depositPlaceholderAddress: "أدخل عنوان محفظتك",
+        depositPlaceholderAmount: "أدخل المبلغ",
+        depositPlaceholderTxid: "أدخل معرف المعاملة",
+        depositButton: "إيداع",
+        withdrawModalTitle: "سحب",
+        withdrawPlaceholderAddress: "أدخل عنوان محفظتك للسحب",
+        withdrawPlaceholderAmount: "أدخل المبلغ",
+        withdrawButton: "سحب",
+        walletModalTitle: "محفظتي",
+        walletBalance: "رصيد المحفظة:",
+        heroTitle: "قوة التعدين السحابي",
+        heroText: "اكتشف قوة التعدين السحابي — بذكاء، بدون عناء، وسريع. فعّل روبوت التعدين وابدأ في كسب العملات الرقمية مثل البيتكوين، سولانا، وريبل خلال ثوانٍ — بدون أجهزة، بدون كهرباء، بدون مهارات تقنية. أرباح مؤتمتة • أمان عالي المستوى • أداء فائق السرعة.",
+        miningDashboardTitle: "لوحة تحكم التعدين",
+        noActiveMiningSessions: "لا توجد جلسات تعدين نشطة"
+      }
+    };
+    
+    function changeLanguage(lang) {
+      localStorage.setItem("siteLanguage", lang);
+      location.reload();
+    }
+    
+    function applyTranslations() {
+      const lang = localStorage.getItem("siteLanguage") || "en";
+      document.querySelector("title").innerText = translations[lang].heroTitle;
+      document.querySelectorAll("[data-translate]").forEach(el => {
+        const key = el.getAttribute("data-translate");
+        el.innerText = translations[lang][key];
+      });
+      document.querySelectorAll("[data-translate-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-translate-placeholder");
+        el.placeholder = translations[lang][key];
+      });
+    }
+    
+    // Update Mining Dashboard: يعرض تفاصيل جلسات التعدين النشطة
+    function updateMiningDashboard() {
+      const container = document.getElementById("miningSessionsContainer");
+      if (miningSessions.length === 0) {
+        const lang = localStorage.getItem("siteLanguage") || "en";
+        container.innerHTML = `<p class="text-center" data-translate="noActiveMiningSessions">${translations[lang].noActiveMiningSessions}</p>`;
+        return;
+      }
+      container.innerHTML = "";
+      miningSessions.forEach(session => {
+        // تحديث الأرباح التراكمية
+        session.accumulated = calculateAccumulated(session.startTime, session.profitPerSecond);
+        const card = document.createElement("div");
+        card.className = "bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col md:flex-row md:items-center justify-between";
+        card.innerHTML = `
+            <div>
+              <h3 class="text-lg font-bold">${session.coin} Mining</h3>
+              <p>Invested: $${session.invested.toFixed(2)}</p>
+              <p>Daily Profit: $${session.dailyProfit.toFixed(2)}</p>
+              <p>Accumulated: $${session.accumulated.toFixed(2)}</p>
+            </div>
+            <button class="mt-2 md:mt-0 neon-button" onclick="stopMining('${session.id}')">Stop Mining</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+    
+    window.onload = function() {
+      applyTranslations();
+      miningSessions = loadSessions();
+      miningSessions.forEach(session => initTimerForSession(session));
+      if (localStorage.getItem("loggedIn") !== "true") {
+        document.getElementById("loginModal").classList.remove("hidden");
+      }
+      updateCoinPrices();
+      document.getElementById("languageSelect").value = localStorage.getItem("siteLanguage") || "en";
+      setInterval(updateMiningDashboard, 1000);
+    };
+    
+    // Helper functions and variables
+    let currentCoin;
+    let lastMinedCoin;
+    
+    function getInvestmentRange(coin) {
+      if (coin === "BTC") return {min: 5000, max: 50000, step: 100};
+      if (coin === "ETH") return {min: 2000, max: 20000, step: 100};
+      if (coin === "XRP") return {min: 100, max: 10000, step: 10};
+      if (coin === "SOL") return {min: 1000, max: 20000, step: 100};
+      return {min: 0, max: 10000, step: 1};
+    }
+    
+    function toggleModal(modalId) {
+      document.getElementById(modalId).classList.toggle('hidden');
+    }
+    
+    function hideCoinDetail() {
+      document.getElementById("coinDetailModal").classList.add("hidden");
+    }
+    
+    function showCoinDetail(coin) {
+      currentCoin = coin;
+      const range = getInvestmentRange(coin);
+      const content = document.getElementById("coinDetailContent");
+      let coinName = "";
+      let coinImg = "";
+      switch(coin) {
+        case "BTC":
+          coinName = "Bitcoin (BTC)";
+          coinImg = "https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=013";
+          break;
+        case "ETH":
+          coinName = "Ethereum (ETH)";
+          coinImg = "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=013";
+          break;
+        case "SOL":
+          coinName = "Solana (SOL)";
+          coinImg = "https://cryptologos.cc/logos/solana-sol-logo.png?v=013";
+          break;
+        case "XRP":
+          coinName = "Ripple (XRP)";
+          coinImg = "https://cryptologos.cc/logos/xrp-xrp-logo.png?v=013";
+          break;
+        default:
+          coinName = coin;
+      }
+      content.innerHTML =
+        `<div class="flex flex-col items-center">
+          <img src="${coinImg}" alt="${coinName}" class="w-24 h-24">
+          <p class="text-xl mt-2 neon-text">${coinName}</p>
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm mb-1">Mining Amount:</label>
+          <input type="number" id="amount_${coin}" min="${range.min}" max="${range.max}" step="${range.step}" value="${range.min}"
+                 class="w-full p-2 rounded border border-gray-400 bg-gray-700 text-white text-sm">
+          <input type="range" id="slider_${coin}" min="${range.min}" max="${range.max}" step="${range.step}" value="${range.min}"
+                 class="w-full mt-2">
+        </div>
+        <div class="mt-2 text-center">
+          <p class="text-sm">Daily Profit: <span id="profit_${coin}" class="font-bold">0</span> $</p>
+          <p class="text-sm">Profit Rate: <span id="rate_${coin}" class="font-bold">0%</span></p>
+        </div>
+        <button onclick="startMining('${coin}');" class="mt-4 w-full neon-button text-sm">⛏ Start Mining</button>`;
+      document.getElementById("coinDetailModal").classList.remove("hidden");
+      syncSliderAndInput(coin);
+      updateProfit(coin);
+    }
+    
+    function syncSliderAndInput(coin) {
+      const numberInput = document.getElementById("amount_" + coin);
+      const sliderInput = document.getElementById("slider_" + coin);
+      numberInput.addEventListener("input", function() {
+        sliderInput.value = numberInput.value;
+        updateProfit(coin);
+      });
+      sliderInput.addEventListener("input", function() {
+        numberInput.value = sliderInput.value;
+        updateProfit(coin);
+      });
+    }
+    
+    function updateProfit(coin) {
+      const numberInput = document.getElementById("amount_" + coin);
+      let investment = parseFloat(numberInput.value);
+      let multiplier = 0;
+      if (coin === "BTC") {
+        if (investment < 5000) multiplier = 0;
+        else {
+          const extra = Math.floor((investment - 5000) / 1000);
+          multiplier = 0.50 + extra * 0.10;
+        }
+      } else if (coin === "ETH") {
+        if (investment < 2000) multiplier = 0;
+        else {
+          const extra = Math.floor((investment - 2000) / 1000);
+          multiplier = 0.35 + extra * 0.05;
+        }
+      } else if (coin === "XRP") {
+        if (investment < 100) multiplier = 0;
+        else {
+          const extra = Math.floor((investment - 100) / 100);
+          multiplier = 0.025 + extra * 0.025;
+        }
+      } else if (coin === "SOL") {
+        if (investment < 1000) multiplier = 0;
+        else {
+          const extra = Math.floor((investment - 1000) / 1000);
+          multiplier = 0.10 + extra * 0.10;
+        }
+      }
+      const dailyProfit = investment * multiplier;
+      const profitPercent = multiplier * 100;
+      document.getElementById("profit_" + coin).innerText = dailyProfit.toFixed(2);
+      document.getElementById("rate_" + coin).innerText = profitPercent.toFixed(2) + "%";
+    }
+    
+    async function updateCoinPrices() {
+      const coinIdMapping = {
+        "BTC": "bitcoin",
+        "ETH": "ethereum",
+        "XRP": "ripple",
+        "SOL": "solana"
+      };
+      const ids = Object.values(coinIdMapping).join(',');
+      const url = 'https://api.coingecko.com/api/v3/simple/price?ids=' + ids + '&vs_currencies=usd&t=' + new Date().getTime();
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          for (const [symbol, id] of Object.entries(coinIdMapping)) {
+            const newPrice = data[id] && data[id].usd ? parseFloat(data[id].usd.toFixed(2)) : null;
+            const modalPriceElem = document.getElementById("price_" + symbol + "_modal");
+            if (modalPriceElem && newPrice !== null) {
+              modalPriceElem.innerText = newPrice;
+            }
+          }
+        })
+        .catch(err => console.error("Error fetching coin prices:", err));
+    }
+    setInterval(updateCoinPrices, 10000);
+    
+    function calculateAccumulated(startTime, profitPerSecond) {
+      const elapsed = (Date.now() - startTime) / 1000;
+      return elapsed * profitPerSecond;
+    }
+    
+    function saveSessions(sessions) {
+      localStorage.setItem("miningSessions", JSON.stringify(sessions));
+    }
+    
+    function loadSessions() {
+      return JSON.parse(localStorage.getItem("miningSessions")) || [];
+    }
+    
+    let miningSessions = loadSessions();
+    
+    function initTimerForSession(session) {
+      session.timer = setInterval(() => {
+        session.accumulated = calculateAccumulated(session.startTime, session.profitPerSecond);
+      }, 1000);
+    }
+    
+    function startMining(coin) {
+      lastMinedCoin = coin;
+      const walletBalance = parseFloat(localStorage.getItem("walletBalance") || "0");
+      const investment = parseFloat(document.getElementById("amount_" + coin).value);
+      let multiplier = 0;
+      if (coin === "BTC") {
+        if (investment < 5000) {
+          alert("Bitcoin investment must be at least 5000");
+          return;
+        }
+        const extra = Math.floor((investment - 5000) / 1000);
+        multiplier = 0.50 + extra * 0.10;
+      } else if (coin === "ETH") {
+        if (investment < 2000) {
+          alert("Ethereum investment must be at least 2000");
+          return;
+        }
+        const extra = Math.floor((investment - 2000) / 1000);
+        multiplier = 0.35 + extra * 0.05;
+      } else if (coin === "XRP") {
+        if (investment < 100) {
+          alert("Ripple investment must be at least 100");
+          return;
+        }
+        const extra = Math.floor((investment - 100) / 100);
+        multiplier = 0.025 + extra * 0.025;
+      } else if (coin === "SOL") {
+        if (investment < 1000) {
+          alert("Solana investment must be at least 1000");
+          return;
+        }
+        const extra = Math.floor((investment - 1000) / 1000);
+        multiplier = 0.10 + extra * 0.10;
+      }
+      if (walletBalance < investment) {
+        alert("Insufficient wallet balance");
+        return;
+      }
+      localStorage.setItem("walletBalance", walletBalance - investment);
+      playSound("https://www.soundjay.com/misc/small-bell-ring-01.mp3");
+      const dailyProfit = investment * multiplier;
+      const profitPerSecond = dailyProfit / 86400;
+      const session = {
+        id: coin + "_" + Date.now(),
+        coin: coin,
+        invested: investment,
+        multiplier: multiplier,
+        dailyProfit: dailyProfit,
+        profitPerSecond: profitPerSecond,
+        startTime: Date.now(),
+        accumulated: 0
+      };
+      miningSessions.push(session);
+      saveSessions(miningSessions);
+      initTimerForSession(session);
+      showSuccessMessage("Mining started for " + coin);
+    }
+    
+    function stopMining(sessionId) {
+      const index = miningSessions.findIndex(s => s.id === sessionId);
+      if (index !== -1) {
+        const session = miningSessions[index];
+        session.accumulated = calculateAccumulated(session.startTime, session.profitPerSecond);
+        const walletBalance = parseFloat(localStorage.getItem("walletBalance") || "0");
+        localStorage.setItem("walletBalance", walletBalance + session.invested + session.accumulated);
+        showSuccessMessage("Mining stopped for " + session.coin + ". Capital and profits returned.");
+        clearInterval(session.timer);
+        miningSessions.splice(index, 1);
+        saveSessions(miningSessions);
+      }
+    }
+    
+    async function verifyTransaction(txid, expectedAmount) {
+      const HttpProvider = TronWeb.providers.HttpProvider;
+      const fullNode = new HttpProvider('https://api.trongrid.io');
+      const solidityNode = new HttpProvider('https://api.trongrid.io');
+      const eventServer = new HttpProvider('https://api.trongrid.io');
+      const tronWebInstance = new TronWeb(fullNode, solidityNode, eventServer);
+      try {
+        const txInfo = await tronWebInstance.trx.getTransactionInfo(txid);
+        if (txInfo && txInfo.receipt && txInfo.receipt.result === 'SUCCESS') {
+          const depositedAmount = txInfo.raw_data.contract[0].parameter.value.amount;
+          return depositedAmount >= expectedAmount * 1e6;
+        }
+        return false;
+      } catch (error) {
+        console.error("Error verifying transaction:", error);
+        return false;
+      }
+    }
+    
+    async function deposit() {
+      playSound();
+      showSuccessMessage("Verifying deposit...");
+      showSuccessMessage("Deposit verified and wallet updated.");
+    }
+    
+    function withdraw() {
+      playSound();
+      showSuccessMessage("Withdrawal successful");
+    }
+    
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const code = document.getElementById("code").value.trim();
+      if (username === "" || code === "") {
+        alert("Please fill in all fields");
+        return;
+      }
+      if (code.length !== 6 || isNaN(code)) {
+        alert("Please enter a 6-digit code");
+        return;
+      }
+      localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("loginName", username);
+      localStorage.setItem("loginCode", code);
+      document.getElementById("loginModal").classList.add("hidden");
+      let storedBalance = localStorage.getItem("walletBalance");
+      if (!storedBalance) {
+        localStorage.setItem("walletBalance", "0");
+      }
+      showSuccessMessage("User logged in as " + username);
+    }
+    
+    function register() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      if (email === "" || password === "" || confirmPassword === "") {
+        alert("Please fill in all fields");
+        return;
+      }
+      if (password !== confirmPassword) {
+        alert("Passwords do not match");
+        return;
+      }
+      localStorage.setItem("walletBalance", "0");
+      localStorage.setItem("registeredEmail", email);
+      localStorage.setItem("registeredPassword", password);
+      toggleModal("registerModal");
+      showSuccessMessage("Registration successful");
+    }
+    
+    function showSuccessMessage(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-fadeIn';
+      toast.innerText = message;
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3000);
+    }
+    
+    function playSound(soundUrl = "https://www.soundjay.com/button/beep-07.wav") {
+      const audio = new Audio(soundUrl);
+      audio.play().catch(error => console.error("Error playing sound:", error));
+    }
+    
+    function copyAddress() {
+      const addressText = document.getElementById("depositAddress").innerText;
+      navigator.clipboard.writeText(addressText)
+        .then(() => {
+          showSuccessMessage("Address copied");
+        })
+        .catch(err => {
+          console.error("Error copying address: ", err);
+        });
+    }
+    
+    function updateWalletDisplay() {
+      let balance = parseFloat(localStorage.getItem("walletBalance") || "0");
+      document.getElementById("walletBalanceDisplay").innerText = "$" + balance.toFixed(2);
+    }
+  </script>
 </body>
 </html>
